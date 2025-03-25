@@ -12,7 +12,6 @@ protocol CatServiceProtocol {
     func fetchBreedImages(breedId: String) async throws -> [BreedImagesModel]
 }
 
-// MARK: - Service Implementation
 class CatService: CatServiceProtocol {
         
     func fetchBreeds(limit: Int, page: Int) async throws -> [CatBreedsModel] {
@@ -23,19 +22,16 @@ class CatService: CatServiceProtocol {
         
         var request = URLRequest(url: url)
         request.addValue(apiKey, forHTTPHeaderField: "x-api-key")
-        request.cachePolicy = .returnCacheDataElseLoad
         
         // Check if cached response exists
-        if let cachedResponse = URLCache.shared.cachedResponse(for: request) {
-            print(cachedResponse.data)
+        if let cachedResponse = NetworkCacheManager.shared.getCachedResponse(for: request) {
             return try JSONDecoder().decode([CatBreedsModel].self, from: cachedResponse.data)
         }
-        
+
         let (data, urlResponse) = try await URLSession.shared.data(for: request)
+        NetworkCacheManager.shared.storeResponse(urlResponse, data: data, for: request)
+
         
-        let cachedResponse = CachedURLResponse(response: urlResponse, data: data)
-        
-        URLCache.shared.storeCachedResponse(cachedResponse, for: request)
         return try JSONDecoder().decode([CatBreedsModel].self, from: data)
     }
     
@@ -48,18 +44,15 @@ class CatService: CatServiceProtocol {
         
         var request = URLRequest(url: url)
         request.addValue(apiKey, forHTTPHeaderField: "x-api-key")
-        request.cachePolicy = .returnCacheDataElseLoad
         
         // Check if cached response exists
-        if let cachedResponse = URLCache.shared.cachedResponse(for: request) {
+        if let cachedResponse = NetworkCacheManager.shared.getCachedResponse(for: request) {
             return try JSONDecoder().decode([BreedImagesModel].self, from: cachedResponse.data)
         }
         
         let (data, urlResponse) = try await URLSession.shared.data(from: url)
+        NetworkCacheManager.shared.storeResponse(urlResponse, data: data, for: request)
         
-        let cachedResponse = CachedURLResponse(response: urlResponse, data: data)
-        
-        URLCache.shared.storeCachedResponse(cachedResponse, for: request)
         return try JSONDecoder().decode([BreedImagesModel].self, from: data)
     }
 }

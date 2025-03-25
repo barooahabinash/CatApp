@@ -1,5 +1,5 @@
 //
-//  CatBreedDetailModel.swift
+//  BreedImagesModel.swift
 //  TheCatApp
 //
 //  Created by Abinash Barooah on 22/03/2025.

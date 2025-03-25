@@ -1,5 +1,5 @@
 //
-//  CatBreedDetailView.swift
+//  BreedImagesView.swift
 //  TheCatApp
 //
 //  Created by Abinash Barooah on 22/03/2025.
@@ -8,74 +8,56 @@
 import SwiftUI
 
 struct BreedImagesView: View {
-    @StateObject private var viewModel = BreedImagesViewModel()
+    @ObservedObject private var breedImagesModel = BreedImagesViewModel()
     let breedId: String
     
     var body: some View {
-        ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: 10) {
-                ForEach(viewModel.images) { image in
+        ScrollView(.horizontal) {
+            HStack(spacing: 15) {
+                ForEach(breedImagesModel.images) { image in
                     if let url = URL(string: image.url) {
-                        AsyncImage(url: url) { phase in
-                            switch phase {
-                            case .empty:
-                                ProgressView()
-                            case .success(let image):
-                                image.resizable()
-                                    .scaledToFill()
-                                    .frame(width: 150, height: 150)
-                                    .clipShape(RoundedRectangle(cornerRadius: 10))
-                            case .failure:
-                                Image(systemName: "photo")
-                                    .resizable()
-                                    .scaledToFit()
-                                    .frame(width: 150, height: 150)
-                                    .foregroundColor(.gray)
-                            @unknown default:
-                                EmptyView()
+                        GeometryReader { geometry in
+                            let screenWidth = UIScreen.main.bounds.width
+                            let position = geometry.frame(in: .global).midX
+                            let center = screenWidth / 2
+                            let scale = max(0.8, 1.5 - abs(position - center) / screenWidth)
+                            
+                            AsyncImage(url: url) { breedImage in
+                                switch breedImage {
+                                case .empty:
+                                    ProgressView()
+                                        .frame(width: 250, height: 250)
+                                case .success(let image):image
+                                        .resizable()
+                                        .scaledToFit()
+                                        .frame(width: 250, height: 250)
+                                        .clipShape(RoundedRectangle(cornerRadius: 15))
+                                        .scaleEffect(scale)
+                                        .animation(.easeInOut(duration: 0.3), value: scale)
+                                case .failure:
+                                    Image(systemName: "photo.fill")
+                                        .resizable()
+                                        .scaledToFit()
+                                        .frame(width: 250, height: 250)
+                                        .foregroundColor(.gray)
+                                @unknown default:
+                                    EmptyView()
+                                }
                             }
                         }
+                        .frame(width: 250, height: 250)
                     }
                 }
             }
-            .padding()
+            .padding(.horizontal, 20)
         }
-        .onAppear {
-            viewModel.fetchImages(for: breedId)
-            //viewModel.fetchMoreImages(breedId: breedId)
-        }
+        .onChange(of: breedId, initial: true) { breedId, newBreedId in
+            breedImagesModel.fetchImages(for: newBreedId)
+            }
     }
-    
-//    var body: some View {
-//            ScrollView {
-//                LazyVStack {
-//                    ForEach(viewModel.images, id: \.id) { image in
-//                        AsyncImage(url: URL(string: image.url)) { img in
-//                            img.resizable()
-//                               .scaledToFit()
-//                        } placeholder: {
-//                            ProgressView()
-//                        }
-//                    }
-//                    
-//                    // Show a loading indicator when fetching more images
-//                    if viewModel.isLoading {
-//                        ProgressView()
-//                            .padding()
-//                    }
-//
-//                    // Trigger loading more images when reaching the last item
-//                    if let lastImage = viewModel.images.last {
-//                        Color.clear
-//                            .onAppear {
-//                                viewModel.fetchMoreImages(breedId: breedId)
-//                            }
-//                    }
-//                }
-//            }
-//            .onAppear {
-//                viewModel.fetchMoreImages(breedId: breedId)
-//            }
-//        }
+}
+
+#Preview {
+    BreedImagesView(breedId: "abys")
 }
 
