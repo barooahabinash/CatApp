@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct BreedImagesView: View {
-    @ObservedObject private var breedImagesModel = BreedImagesViewModel()
+    @StateObject private var breedImagesModel = BreedImagesViewModel()
     let breedId: String
     
     var body: some View {

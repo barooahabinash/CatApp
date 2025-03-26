@@ -8,23 +8,23 @@
 import SwiftUI
 
 struct CatBreedsView: View {
-    @StateObject var catBreedsModel = CatBreedsViewModel()
+    @StateObject var catBreedsViewModel = CatBreedsViewModel()
         
     var body: some View {
         NavigationSplitView {
-            List(catBreedsModel.breeds) { breed in
+            List(catBreedsViewModel.breeds) { breed in
                 NavigationLink(destination: BreedDetailView(breed: breed)) {
                     BreedRowView(breed: breed)
                 }
                 .onAppear{
-                    if breed == catBreedsModel.breeds.last{
-                        catBreedsModel.fetchBreeds()
+                    if breed == catBreedsViewModel.breeds.last{
+                        catBreedsViewModel.fetchBreeds()
                     }
                 }
             }
             .navigationTitle("Cat Breeds")
             .onAppear {
-                catBreedsModel.fetchBreeds()
+                catBreedsViewModel.fetchBreeds()
             }
         }
         detail: {
