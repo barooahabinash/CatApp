@@ -16,8 +16,10 @@ Additional features that I think can be added:
 * The home screen with the cat breed list can be customized further to give it a better look and feel
 * Features like share cat breed details to social media
 * Add and post cat images to the API
+* Add a splash screen
+* Zoom cat images
 
   
-  *Note: Currently, there are no tests included in the project,
-  Does not cache image data
+  *Note: Currently, there are no tests included in the project.
+  Only network responses are cached, images aren't cached.
   Cache is not deleted . Uncomment the code in CatBreedsViewModel to clear cache(line20)*
